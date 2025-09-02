@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #4F46E5;
+  --color-secondary: #64748B;
+  --color-background: #F3F4F6;
+  --color-card: #FFFFFF;
+  --color-accent: #10B981;
+
+  --shadow-card: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --shadow-button: 0 5px 10px rgba(0, 0, 0, 0.1);
+
+  --radius-xl: 1rem;
+}

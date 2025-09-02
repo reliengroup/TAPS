@@ -1,0 +1,69 @@
+name: taykz-payroll
+
+services:
+  mongo:
+    image: mongo:8.0.9
+    container_name: mongo
+    ports:
+      - 27018:27017
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - taykz-payroll-net
+  api:
+    container_name: taykz-payroll-api
+    build:
+      context: ./backend
+      target: development
+    networks:
+      - taykz-payroll-net
+    ports:
+      - 5000:5000
+    restart: unless-stopped
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    env_file: ./backend/.env
+    depends_on:
+      - mongo
+  frontend:
+    container_name: taykz-payroll-frontend
+    build:
+      context: ./frontend
+      target: development
+      args:
+        VITE_SERVER_URL: https://api.taykz.localhost
+    networks:
+      - taykz-payroll-net
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - 5173:5173
+    env_file: ./frontend/.env
+    restart: unless-stopped
+    depends_on:
+      - api
+  caddy:
+    image: caddy:2-alpine
+    container_name: taykz-payroll-caddy
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./caddy/Caddyfile.dev:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - taykz-payroll-net
+    depends_on:
+      - frontend
+      - api
+
+volumes:
+  mongo-data:
+  caddy_data:
+  caddy_config:
+networks:
+  taykz-payroll-net:
+    driver: bridge

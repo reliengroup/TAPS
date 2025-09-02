@@ -1,0 +1,37 @@
+{$DOMAIN_NAME:invalid} {
+    encode gzip
+    reverse_proxy frontend:80
+}
+
+www.{$DOMAIN_NAME:invalid}{
+    redir https://{$DOMAIN_NAME:invalid}{url} permanent
+}
+
+api.{$DOMAIN_NAME:invalid} {
+    encode gzip
+    reverse_proxy api:5000
+    header {
+        Strict-Transport-Security max-age=31536000;
+        X-Content-Type-Options nosniff
+        X-Frame-Options DENY
+        X-XSS-Protection "1; mode=block"
+    }
+
+    rate_limit {
+
+       zone api_limit {
+        key {remote_host}
+        # cloudflare
+        # key {http.request.header.CF-Connecting-IP}
+        events 100
+        window 1m
+       } 
+
+       zone burst_limit {
+        key {remote_host}
+        # key {http.request.header.CF-Connecting-IP}
+        events 20
+        window 1s
+       }
+    }
+}

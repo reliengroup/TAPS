@@ -1,0 +1,13 @@
+{
+    local_certs
+}
+
+taykz.localhost{
+    encode gzip
+    reverse_proxy frontend:5173
+}
+
+api.taykz.localhost {
+    encode gzip
+    reverse_proxy api:5000
+}
